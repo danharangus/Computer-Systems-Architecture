@@ -1,0 +1,51 @@
+     1                                  ;(a+b)/(2-b*b+b/c)-x; a-doubleword; b,c-byte; x-qword UNSIGNED
+     2                                  bits 32
+     3                                  
+     4                                  global start
+     5                                  
+     6                                  extern exit
+     7                                  
+     8                                  import exit msvcrt.dll
+     9                                  
+    10                                  segment data use32 class=data
+    11 00000000 64000000                    a dd 100
+    12 00000004 14                          b db 20
+    13 00000005 05                          c db 5
+    14 00000006 C800000000000000            x dq 200
+    15                                      
+    16                                  segment code use32 class=code
+    17                                  start:    
+    18 00000000 668B1D[00000000]            mov BX, [a]
+    19 00000007 668B0D[02000000]            mov CX, [a + 2] ;CX:BX = a
+    20                                      
+    21 0000000E A0[04000000]                mov AL, [b]
+    22 00000013 6698                        cbw
+    23 00000015 6699                        cwd ;DX:AX = b
+    24 00000017 6601C3                      add BX, AX
+    25 0000001A 6611D1                      adc CX, DX ;CX:BX = a + b
+    26                                      
+    27 0000001D A0[04000000]                mov AL, [b]
+    28 00000022 F625[04000000]              mul byte [b] ;AX = b * b
+    29 00000028 66BA0200                    mov DX, 2
+    30 0000002C 6629C2                      sub DX, AX ;DX = 2 - b * b
+    31                                      
+    32 0000002F A0[04000000]                mov AL, [b]
+    33 00000034 6698                        cbw
+    34 00000036 F635[05000000]              div byte [c] ;AL = b / c
+    35 0000003C 6698                        cbw
+    36 0000003E 6601C2                      add DX, AX ;DX = 2 - b * b + b / c
+    37                                      
+    38 00000041 6689D0                      mov AX, DX
+    39 00000044 98                          cwde
+    40 00000045 99                          cdq ;EDX:EAX = 2 - b * b + b / c
+    41                                      
+    42 00000046 8B1D[06000000]              mov EBX, [x]
+    43 0000004C 8B0D[0A000000]              mov ECX, [x + 4]
+    44                                      
+    45 00000052 29D8                        sub EAX, EBX
+    46 00000054 19CA                        sbb EDX, ECX ;EDX:EAX = 2 - b * b + b / c - x
+    47                                      
+    48                                      
+    49                                  
+    50 00000056 6A00                        push dword 0
+    51 00000058 FF15[00000000]              call [exit]

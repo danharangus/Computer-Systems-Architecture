@@ -1,0 +1,51 @@
+     1                                  ;d-(a+b+c)-(a+a)
+     2                                  ;a - byte, b - word, c - double word, d - qword - Signed representation
+     3                                  bits 32
+     4                                  
+     5                                  global start
+     6                                  
+     7                                  extern exit
+     8                                  
+     9                                  import exit msvcrt.dll
+    10                                  
+    11                                  segment data use32 class=data
+    12 00000000 F6                          a db -10
+    13 00000001 6AFF                        b dw -150
+    14 00000003 90010000                    c dd 400
+    15 00000007 C800000000000000            d dq 200
+    16                                  
+    17                                  segment code use32 class=code
+    18                                  start:    
+    19 00000000 A0[00000000]                mov AL, [a]
+    20 00000005 6698                        cbw
+    21 00000007 98                          cwde
+    22 00000008 89C2                        mov EDX, EAX ;EDX = a
+    23 0000000A 66A1[01000000]              mov AX, [b]
+    24 00000010 98                          cwde ;EAX = b
+    25 00000011 01C2                        add EDX, EAX ;EDX = a + b
+    26 00000013 0315[03000000]              add EDX, [c] ;EDX = a + b + c
+    27                                      
+    28 00000019 89D0                        mov EAX, EDX ;EAX = a + b + c
+    29 0000001B 99                          cdq ;EDX:EAX = (a + b + c)
+    30                                      
+    31 0000001C 8B1D[07000000]              mov EBX, [d]
+    32 00000022 8B0D[0B000000]              mov ECX, [d + 4] ;ECX:EBX = d
+    33                                      
+    34 00000028 29C3                        sub EBX, EAX
+    35 0000002A 19D1                        sbb ECX, EDX ;ECX:EBX = d - (a + b + c)
+    36                                      
+    37 0000002C A0[00000000]                mov AL, [a]
+    38 00000031 0205[00000000]              add AL, [a] ;AL = (a + a)
+    39 00000037 6698                        cbw
+    40 00000039 98                          cwde ;EAX = a
+    41 0000003A 99                          cdq ;EDX:EAX = (a + a)
+    42                                      
+    43 0000003B 29C3                        sub EBX, EAX
+    44 0000003D 19D1                        sbb ECX, EDX ;ECX:EBX = d - (a + b + c) - (a + a)
+    45                                      
+    46                                     
+    47                                      
+    48                                      
+    49                                      
+    50 0000003F 6A00                        push dword 0
+    51 00000041 FF15[00000000]              call [exit]
