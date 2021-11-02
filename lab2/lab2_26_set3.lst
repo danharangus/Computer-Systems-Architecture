@@ -1,0 +1,37 @@
+     1                                  ;d+[(a+b)*5-(c+c)*5]
+     2                                  bits 32
+     3                                  
+     4                                  global start
+     5                                  
+     6                                  extern exit
+     7                                  
+     8                                  import exit msvcrt.dll
+     9                                  
+    10                                  segment data use32 class=data
+    11 00000000 05                          a db 5
+    12 00000001 06                          b db 6
+    13 00000002 05                          c db 5
+    14 00000003 2C01                        d dw 300
+    15 00000005 05                          f db 5
+    16                                  
+    17                                  segment code use32 class=code
+    18                                  start:
+    19 00000000 A0[00000000]                mov AL, [a]
+    20 00000005 0205[01000000]              add AL, [b] ;AL = a + b
+    21 0000000B F625[05000000]              mul byte [f] ;AL = (a + b) * 5
+    22                                      
+    23 00000011 88C3                        mov BL, AL ; BL = (a + b) * 5
+    24                                      
+    25 00000013 A0[02000000]                mov AL, [c]
+    26 00000018 0205[02000000]              add AL, [c]
+    27 0000001E F625[05000000]              mul byte [f] ;AL = (c + c) * 5
+    28                                      
+    29 00000024 28C3                        sub BL, AL
+    30 00000026 88D8                        mov AL, BL ;AL = (a + b) * 5 - (c + c) * 5
+    31                                      
+    32 00000028 668B1D[03000000]            mov BX, [d] ;BX = d
+    33 0000002F 6601D8                      add AX, BX ;AX = d + [(a + b) * 5 - (c + c) * 5]
+    34                                      
+    35                                      
+    36 00000032 6A00                        push dword 0
+    37 00000034 FF15[00000000]              call [exit]

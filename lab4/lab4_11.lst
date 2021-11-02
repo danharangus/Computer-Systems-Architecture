@@ -1,0 +1,36 @@
+     1                                  ;Given the byte A and the word B, compute the byte C as follows:
+     2                                  ;the bits 0-3 are the same as the bits 2-5 of A
+     3                                  ;the bits 4-7 are the same as the bits 6-9 of B.
+     4                                  bits 32
+     5                                  
+     6                                  global start
+     7                                  
+     8                                  extern exit
+     9                                  
+    10                                  import exit msvcrt.dll
+    11                                  
+    12                                  segment data use32 class=data
+    13 00000000 D7                           a db 11010111b
+    14 00000001 BE9B                         b dw 1001101110111110b
+    15 00000003 0000                         c dw 0
+    16                                      
+    17                                  segment code use32 class=code
+    18                                  start:    
+    19 00000000 66BB0000                    mov BX, 0 ;result will be in BX
+    20                                      
+    21 00000004 A0[00000000]                mov AL, [a]
+    22 00000009 6698                        cbw
+    23 0000000B 6683E03C                    and AX, 0000000000111100b ;we isolate bits 2-5 of A
+    24 0000000F B102                        mov CL, 2
+    25 00000011 66D3C8                      ror AX, CL ;we rotate right by 2 positions
+    26 00000014 6609C3                      or BX, AX ;we put the bits into the result
+    27                                      
+    28 00000017 66A1[01000000]              mov AX, [b]
+    29 0000001D 6625C003                    and AX, 0000001111000000b ;we isolate bits 6-9 of B
+    30 00000021 66D3C8                      ror AX, CL ;we rotate right by 2 positions
+    31 00000024 6609C3                      or BX, AX ;we put the bits into the result
+    32                                      
+    33                                      
+    34                                  
+    35 00000027 6A00                        push dword 0
+    36 00000029 FF15[00000000]              call [exit]
